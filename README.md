@@ -1,1 +1,3 @@
-# Examen-Final-Metodos
+## Detalles
+
+Ahorita no hay interfaz, se imprime en consola

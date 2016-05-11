@@ -134,6 +134,50 @@ namespace Examen_Final_Metodos
             }
         }
 
+        public static void GraficarImagenCola(DataPointCollection chart, List<Imagen> list, bool repeat = true)
+        {
+            List<Imagen> l = list;
+            l.Sort();
+            List<Imagen> repeated = new List<Imagen>();
+            foreach (Imagen t in l)
+            {
+                if (repeat)
+                {
+                    chart.AddXY(t.tiempo, t.cola);
+                }
+                else
+                {
+                    if (!repeated.Contains(t))
+                    {
+                        chart.AddXY(t.tiempo, t.cola);
+                        repeated.Add(t);
+                    }
+                }
+            }
+        }
+
+        public static void GraficarImagenUso(DataPointCollection chart, List<Imagen> list, int i, bool repeat = false)
+        {
+            List<Imagen> l = list;
+            l.Sort();
+            List<Imagen> repeated = new List<Imagen>();
+            foreach (Imagen t in l)
+            {
+                if (repeat)
+                {
+                    chart.AddXY(t.tiempo, t.uso[i]);
+                }
+                else
+                {
+                    if (!repeated.Contains(t))
+                    {
+                        chart.AddXY(t.tiempo, t.uso[i]);
+                        repeated.Add(t);
+                    }
+                }
+            }
+        }
+
         public static void Graficar(DataPointCollection chart, Dictionary<double, double> dic)
         {
             List<double> l = dic.Keys.ToList();

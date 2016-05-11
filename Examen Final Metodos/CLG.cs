@@ -12,7 +12,7 @@ namespace Examen_Final_Metodos
         private BigInteger a;
         private BigInteger c;
         private BigInteger x0;
-        private int index = 0;
+        public int index = 0;
 
         public List<BigInteger> x { get; private set; }
         public List<double> normalized { get; private set; }

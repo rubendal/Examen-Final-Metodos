@@ -21,6 +21,7 @@ namespace Examen_Final_Metodos
         private int generados = 0;
         private int procesados = 0;
         private List<double> tiempos = new List<double>();
+        public List<double> tiempos_cliente = new List<double>();
 
 
         public Barberia(int barberos, Distribucion distribucion, double media, double desviacion, int no_clientes, Distribucion distribucion_barbero, double media_barbero, double desviacion_barbero)
@@ -43,12 +44,14 @@ namespace Examen_Final_Metodos
             List<int> estados = new List<int>();
             this.barberos.getEstados(0).ForEach(e => estados.Add(e == Estado.ACTIVO ? 1 : 0));
             tiempo_anterior = 0;
+            //tiempos_cliente.Add(0);
             for(generados = 1; generados < no_clientes; generados++)
             {
                 double tiempo = generarTiempo(tiempo_anterior);
                 Cliente c = new Cliente(tiempo);
                 espera.Add(c);
                 tiempo_anterior = tiempo;
+                //tiempos_cliente.Add(tiempo);
             }
             clg.setIndex(0);
             tiempo_anterior = 0;
@@ -112,6 +115,7 @@ namespace Examen_Final_Metodos
                 {
                     if (tiempo >= espera[0].llegada)
                     {
+                        espera[0].atendido = tiempo;
                         if (barberos.Atender(espera[0]))
                         {
                             espera.RemoveAt(0);
@@ -183,21 +187,43 @@ namespace Examen_Final_Metodos
             //}
         }
 
+        public List<double> histograma()
+        {
+            List<double> histograma = new List<double>();
+            foreach(double v in clg.normalized)
+            {
+                if (distribucion != Distribucion.UNIFORME)
+                {
+                    histograma.Add(Math.Round(generarTiempo(v), 0));
+                }
+                else
+                {
+                    histograma.Add(generarTiempo(v));
+                }
+            }
+            return histograma;
+        }
+
         private double generarTiempo(double inicio)
         {
             double n = 0;
+            double v = 0;
             switch (distribucion)
             {
                 case Distribucion.UNIFORME:
-                    n = inicio + (media + (desviacion * Math.Round(clg.nextNormalized(), 2)));
+                    v = (media + (desviacion * Math.Round(clg.nextNormalized(), 2)));
+                    n = inicio + v;
                     break;
                 case Distribucion.NORMAL:
-                    n = inicio + Operaciones.Normal(clg.nextNormalized(), media, desviacion, 2);
+                    v = Operaciones.Normal(clg.nextNormalized(), media, desviacion, 2);
+                    n = inicio + v;
                     break;
                 case Distribucion.EXPONENCIAL:
-                    n = inicio + Operaciones.Exponencial(clg.nextNormalized(), media, desviacion, 2);
+                    v = Operaciones.Exponencial(clg.nextNormalized(), media, desviacion, 2);
+                    n = inicio + v;
                     break;
             }
+            tiempos_cliente.Add(v);
             return n;
         }
     }

@@ -16,6 +16,7 @@ namespace Examen_Final_Metodos
         private double fin { get; set; }
         private double tiempo_ultimo { get; set; }
         public double tiempo_trabajo { get; set; }
+        public List<double> tiempos = new List<double>();
 
         public Barbero(Distribucion distribucion, double media, double desviacion)
         {
@@ -81,21 +82,47 @@ namespace Examen_Final_Metodos
         private double generarFin(double inicio)
         {
             double n = 0;
+            double v = 0;
             switch (distribucion)
             {
                 case Distribucion.UNIFORME:
-                    n = inicio + (media + (desviacion * Math.Round(clg.nextNormalized(), 2)));
+                    v = (media + (desviacion * Math.Round(clg.nextNormalized(), 2)));
+                    n = inicio + v;
                     break;
                 case Distribucion.NORMAL:
-                    n = inicio + Operaciones.Normal(clg.nextNormalized(), media, desviacion, 2);
+                    v = Operaciones.Normal(clg.nextNormalized(), media, desviacion, 2);
+                    n = inicio + v;
                     break;
                 case Distribucion.EXPONENCIAL:
-                    n = inicio + Operaciones.Exponencial(clg.nextNormalized(), media, desviacion, 2);
+                    v = Operaciones.Exponencial(clg.nextNormalized(), media, desviacion, 2);
+                    n = inicio + v;
                     break;
             }
+            tiempos.Add(v);
             return n;
         }
 
+        public double TiempoPromedio(double max)
+        {
+            return tiempo_trabajo / max;
+        }
+
+        public List<double> histograma()
+        {
+            List<double> histograma = new List<double>();
+            foreach (double v in clg.normalized)
+            {
+                if (distribucion != Distribucion.UNIFORME)
+                {
+                    histograma.Add(Math.Round(generarFin(v), 0));
+                }
+                else
+                {
+                    histograma.Add(generarFin(v));
+                }
+            }
+            return histograma;
+        }
 
     }
 }

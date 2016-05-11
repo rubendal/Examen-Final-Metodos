@@ -8,6 +8,7 @@ namespace Examen_Final_Metodos
     public class Cliente
     {
         public double llegada { get; set; }
+        public double atendido { get; set; }
         public double salida { get; set; }
 
         public Cliente()
@@ -22,7 +23,7 @@ namespace Examen_Final_Metodos
 
         public double TiempoDeEspera()
         {
-            return salida - llegada;
+            return atendido - llegada;
         }
     }
 }

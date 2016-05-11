@@ -7,7 +7,7 @@ namespace Examen_Final_Metodos
 {
     public class Barberia
     {
-        public Barbero barbero;
+        public Barberos barberos;
         public Cola espera = new Cola();
         public Cola atendidos = new Cola();
         private CLG clg; //Genera tiempos de llegada
@@ -20,96 +20,167 @@ namespace Examen_Final_Metodos
         private double tiempo_a_analizar { get; set; }
         private int generados = 0;
         private int procesados = 0;
+        private List<double> tiempos = new List<double>();
 
 
-        public Barberia(Distribucion distribucion, double media, double desviacion, int no_clientes, Distribucion distribucion_barbero, double media_barbero, double desviacion_barbero)
+        public Barberia(int barberos, Distribucion distribucion, double media, double desviacion, int no_clientes, Distribucion distribucion_barbero, double media_barbero, double desviacion_barbero)
         {
-            barbero = new Barbero(distribucion_barbero, media_barbero, desviacion_barbero);
+            this.barberos = new Barberos(barberos, distribucion_barbero, media_barbero, desviacion_barbero);
             this.distribucion = distribucion;
             this.media = media;
-            this.desviacion = this.desviacion;
+            this.desviacion = desviacion;
             this.no_clientes = no_clientes;
             tiempo_anterior = 0;
             tiempo_a_analizar = 0;
-            imagenes.Add(new Imagen(0, 0, 0));
+            
             clg = new CLG(1000, new Random().Next(0, 1000));
+            generados++;
+            Cliente cliente = new Cliente(0);
+            if (!this.barberos.Atender(cliente))
+            {
+                espera.Add(cliente);
+            }
+            List<int> estados = new List<int>();
+            this.barberos.getEstados(0).ForEach(e => estados.Add(e == Estado.ACTIVO ? 1 : 0));
+            tiempo_anterior = 0;
+            for(generados = 1; generados < no_clientes; generados++)
+            {
+                double tiempo = generarTiempo(tiempo_anterior);
+                Cliente c = new Cliente(tiempo);
+                espera.Add(c);
+                tiempo_anterior = tiempo;
+            }
+            clg.setIndex(0);
+            tiempo_anterior = 0;
+            tiempos.Add(0);
         }
 
-        public void generarCliente()
+        private void procesar(double tiempo)
         {
-            double tiempo = generarTiempo(tiempo_anterior);
-
-            if (generados < no_clientes)
+            List<Cliente> activo = barberos.Terminar(tiempo);
+            foreach (Cliente c in activo)
             {
-                Cliente cliente = new Cliente(tiempo);
-                generados++;
-                if (!barbero.Atender(cliente))
-                {
-                    espera.Add(cliente);
-                }
-            }
-            if (procesados < no_clientes)
-            {
-                Cliente activo = barbero.Terminar(tiempo);
-                if (activo == null)
+                if (c == null)
                 {
 
                 }
                 else
                 {
-                    procesarTiempo(activo.salida);
-                    atendidos.Add(activo);
+                    procesarTiempo(c.salida);
                     procesados++;
                 }
             }
-            tiempo_anterior = tiempo;
-            if (espera.Count > 0 || generados < no_clientes)
+        }
+
+        public double tiempo_max
+        {
+            get
             {
-                if (espera.Count > 0)
+                double max = 0;
+                foreach(Cliente c in atendidos)
                 {
-                    if (barbero.Atender(espera[0]))
+                    if(max < c.salida)
                     {
-                        espera.RemoveAt(0);
+                        max = c.salida;
                     }
                 }
-                Estado estado = barbero.estado;
-                imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), estado == Estado.ACTIVO ? 1 : 0));
-                generarCliente();
-            }else
+                return max;
+                
+            }
+        }
+
+        public void procesarClientes()
+        {
+            double tiempo = generarTiempo(tiempo_anterior);
+            tiempo_anterior = tiempo;
+            if (procesados < no_clientes)
             {
-                Cliente activo = barbero.Terminar(tiempo);
-                if (activo == null)
+                List<Cliente> activo = barberos.Terminar(tiempo);
+                foreach (Cliente c in activo)
+                {
+                    if (c == null)
+                    {
+
+                    }
+                    else
+                    {
+                        tiempos.Add(c.salida);
+                        procesados++;
+                    }
+                }
+                if (espera.Count > 0)
+                {
+                    if (tiempo >= espera[0].llegada)
+                    {
+                        if (barberos.Atender(espera[0]))
+                        {
+                            espera.RemoveAt(0);
+                        }
+                    }
+                }
+                procesarClientes();
+            }
+            else
+            {
+                List<Cliente> activo = barberos.Terminar(tiempo);
+                foreach (Cliente c in activo)
                 {
 
+                    if (c == null)
+                    {
+
+                    }
+                    else
+                    {
+                        tiempos.Add(c.salida);
+                        procesados++;
+                    }
                 }
-                else
+                List<int> estados = new List<int>();
+                barberos.getEstados(tiempo).ForEach(e => estados.Add(e == Estado.ACTIVO ? 1 : 0));
+                imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), estados));
+                tiempos.Add(tiempo);
+                foreach (Barbero barbero in barberos)
                 {
-                    procesarTiempo(activo.salida);
-                    atendidos.Add(activo);
-                    procesados++;
+                    atendidos.AddRange(barbero.cliente);
                 }
-                Estado estado = barbero.estado;
-                imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), estado == Estado.ACTIVO ? 1 : 0));
+                foreach(double t in tiempos)
+                {
+                    procesarTiempo(t);
+                }
             }
+            
 
         }
 
         private void procesarTiempo(double tiempo)
         {
-            if(espera.Count > 0)
+            List<int> estados = new List<int>();
+            int i = atendidos.SizeInTime(tiempo);
+            barberos.getEstados(tiempo).ForEach(e => estados.Add(e == Estado.ACTIVO ? 1 : 0));
+            estados.ForEach(estado =>
             {
-                if (espera[0].llegada <= tiempo)
+                if (estado == 1)
                 {
-                    imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 1));
+                    i--;
                 }
-                else
-                {
-                    imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 0));
-                }
-            }else
-            {
-                imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 0));
-            }
+            });
+           
+            imagenes.Add(new Imagen(tiempo, i, estados));
+            //if(espera.Count > 0)
+            //{
+            //    if (espera[0].llegada <= tiempo)
+            //    {
+            //        imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 1));
+            //    }
+            //    else
+            //    {
+            //        imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 0));
+            //    }
+            //}else
+            //{
+            //    imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), 0));
+            //}
         }
 
         private double generarTiempo(double inicio)

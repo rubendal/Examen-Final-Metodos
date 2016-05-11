@@ -19,5 +19,18 @@ namespace Examen_Final_Metodos
             }
             return i;
         }
+
+        public int SizeInTime(double tiempo_actual)
+        {
+            int i = 0;
+            foreach (Cliente cliente in this)
+            {
+                if (cliente.llegada <= tiempo_actual && tiempo_actual < cliente.salida)
+                {
+                    i++;
+                }
+            }
+            return i;
+        }
     }
 }

@@ -11,21 +11,23 @@ namespace Examen_Final_Metodos
 {
     public partial class Form1 : Form
     {
-        private Barberia barberia = new Barberia(Distribucion.EXPONENCIAL, 15, 1, 5, Distribucion.UNIFORME, 10, 5);
+        private Barberia barberia = new Barberia(3,Distribucion.EXPONENCIAL, 15, 1, 5, Distribucion.UNIFORME, 10, 5);
 
         public Form1()
         {
             InitializeComponent();
-            barberia.generarCliente();
+            barberia.procesarClientes();
             barberia.imagenes.Sort();
+            string s = "";
             foreach(Cliente cliente in barberia.atendidos)
             {
-                Console.WriteLine($"Tiempo llegada: {cliente.llegada.ToTiempo()}, Tiempo salida: {cliente.salida.ToTiempo()}");
+                s+= $"Tiempo llegada: {cliente.llegada.ToTiempo()}, Tiempo salida: {cliente.salida.ToTiempo()}" + "\r\n";
             }
             foreach(Imagen i in barberia.imagenes)
             {
-                Console.WriteLine($"Tiempo imagen: {i.tiempo.ToTiempo()}, Tamaño : {i.cola}, En uso : {i.uso}");
+                s += $"Tiempo imagen: {i.tiempo.ToTiempo()}, Tamaño : {i.cola}, En uso : {i.uso.IntList()}" + "\r\n";
             }
+            textBox1.Text = s;
         }
     }
 }

@@ -19,5 +19,10 @@ namespace Examen_Final_Metodos
         {
             this.llegada = llegada;
         }
+
+        public double TiempoDeEspera()
+        {
+            return salida - llegada;
+        }
     }
 }

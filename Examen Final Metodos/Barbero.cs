@@ -12,9 +12,10 @@ namespace Examen_Final_Metodos
         private double media { get; set; }
         private double desviacion { get; set; }
         private CLG clg; //Genera tiempos de salida
-        public Cliente cliente { get; set; }
+        public List<Cliente> cliente { get; set; }
         private double fin { get; set; }
         private double tiempo_ultimo { get; set; }
+        public double tiempo_trabajo { get; set; }
 
         public Barbero(Distribucion distribucion, double media, double desviacion)
         {
@@ -23,13 +24,28 @@ namespace Examen_Final_Metodos
             this.media = media;
             this.desviacion = desviacion;
             clg = new CLG(1000, new Random().Next(0, 1000));
+            cliente = new List<Cliente>();
+        }
+
+        public Estado getEstado(double tiempo)
+        {
+            foreach(Cliente c in cliente)
+            {
+                if(tiempo >= c.llegada && tiempo < c.salida)
+                {
+                    return Estado.ACTIVO;
+                }
+                
+            }
+            return Estado.INACTIVO;
+
         }
 
         public bool Atender(Cliente cliente)
         {
             if (estado == Estado.INACTIVO)
             {
-                this.cliente = cliente;
+                this.cliente.Add(cliente);
                 estado = Estado.ACTIVO;
                 if (cliente.llegada < tiempo_ultimo)
                 {
@@ -39,8 +55,8 @@ namespace Examen_Final_Metodos
                 {
                     fin = generarFin(cliente.llegada);
                 }
-                
-                this.cliente.salida = fin;
+                tiempo_trabajo += fin - cliente.llegada;
+                this.cliente[this.cliente.Count-1].salida = fin;
                 return true;
             }else
             {
@@ -52,11 +68,11 @@ namespace Examen_Final_Metodos
         {
             if(estado == Estado.ACTIVO)
             {
-                if(tiempo >= cliente.salida)
+                if(tiempo >= cliente[cliente.Count - 1].salida)
                 {
                     estado = Estado.INACTIVO;
-                    tiempo_ultimo = cliente.salida;
-                    return cliente;
+                    tiempo_ultimo = cliente[cliente.Count - 1].salida;
+                    return cliente[cliente.Count - 1];
                 }
             }
             return null;

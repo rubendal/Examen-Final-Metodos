@@ -77,7 +77,7 @@ namespace Examen_Final_Metodos
         {
             double r = normalized[index];
             index++;
-            if (index > x.Count)
+            if (index > x.Count-1)
             {
                 index = 0;
             }

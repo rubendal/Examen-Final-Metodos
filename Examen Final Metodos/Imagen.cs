@@ -9,9 +9,9 @@ namespace Examen_Final_Metodos
     {
         public double tiempo { get; set; }
         public int cola { get; set; }
-        public int uso { get; set; }
+        public List<int> uso { get; set; }
 
-        public Imagen(double tiempo,int cola, int uso)
+        public Imagen(double tiempo,int cola, List<int> uso)
         {
             this.tiempo = tiempo;
             this.cola = cola;

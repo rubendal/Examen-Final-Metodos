@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Barberia.cs" />
+    <Compile Include="Barberos.cs" />
     <Compile Include="CLG.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Cola.cs" />

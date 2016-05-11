@@ -34,6 +34,16 @@ namespace Examen_Final_Metodos
             return r;
         }
 
+        public static string IntList(this List<int> list)
+        {
+            string s = "";
+            foreach(int i in list)
+            {
+                s += i.ToString() + ",";
+            }
+            return s.TrimEnd(',');
+        }
+
         public static void BoxMuller(double rand1, double rand2, double med, double des, out double x, out double y, int round = 0)
         {
             x = Math.Round(Math.Sqrt(-2 * Math.Log(rand1)) * Math.Cos(2 * Math.PI * rand2) * des, round) + med;

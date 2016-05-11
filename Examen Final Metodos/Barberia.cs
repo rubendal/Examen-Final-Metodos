@@ -48,7 +48,7 @@ namespace Examen_Final_Metodos
                     espera.Add(cliente);
                 }
             }
-            if (procesados < no_clientes+1)
+            if (procesados < no_clientes)
             {
                 Cliente activo = barbero.Terminar(tiempo);
                 if (activo == null)
@@ -77,6 +77,17 @@ namespace Examen_Final_Metodos
                 generarCliente();
             }else
             {
+                Cliente activo = barbero.Terminar(tiempo);
+                if (activo == null)
+                {
+
+                }
+                else
+                {
+                    procesarTiempo(activo.salida);
+                    atendidos.Add(activo);
+                    procesados++;
+                }
                 Estado estado = barbero.estado;
                 imagenes.Add(new Imagen(tiempo, espera.Size(tiempo), estado == Estado.ACTIVO ? 1 : 0));
             }
